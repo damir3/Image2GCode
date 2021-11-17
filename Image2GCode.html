@@ -479,7 +479,7 @@
 		var offsetX = Math.max(borderX, parseFloat(settings.overscanDist.value) + reverseOffset);
 
 		var gcode = [];
-		gcode.push("; Created using Image2GCode v1.0 https://github.com/damir3/Image2GCode");
+		gcode.push("; Created using Image2GCode v1.0.0 https://github.com/damir3/Image2GCode");
 		gcode.push("; Image Size: " + (width * dx) + "x" + (height * dy) + " mm");
 		gcode.push("; Gamma: " + imageGamma.value);
 		gcode.push("; Mode: " + (settings.halftoneMode.checked ? "halftone" : "greyscale"));

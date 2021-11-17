@@ -88,6 +88,7 @@
 		<input style="width: 270px;" id="imageFile" type="file" accept="image/*" onchange="loadImage()" />
 		<br/>
 		<label>Gamma: </label><input id="imageGamma" type="number" min="0.05" max="10" value="1" step="0.05" onchange="updatePreviewImage()""><br/>
+		<label>Preview Scale: </label><input id="previewScale" type="number" min="0.25" max="10" value="1" step="0.25" onchange="updatePreview(event)""><br/>
 		<br/>
 
 		<div style="margin-bottom: 10px;">
@@ -144,10 +145,10 @@
 	var sourceImage = new Image();
 	var previewCanvas = document.getElementById("previewCanvas");
 	var imageFile = document.getElementById("imageFile");
-	var imageGammaInput = document.getElementById("imageGamma");
+	var imageGamma = document.getElementById("imageGamma");
+	var previewScale = document.getElementById("previewScale");
 	var profilesSelect = document.getElementById("profiles");
 	var generateButton = document.getElementById("generateButton");
-	var mm2px = 128 / 25.4;
 	var profiles = {};
 	var settings = {};
 	["halftoneMode", "laserOnOffCmd", "minPower", "maxPower", "burnSpeed", "travelSpeed",
@@ -267,7 +268,7 @@
 		} while (image.width > width || image.height > height);
 
 		// prepare greyscale data
-		var gamma = parseFloat(imageGammaInput.value);
+		var gamma = parseFloat(imageGamma.value);
 		var srcData = ctx.getImageData(0, 0, width, height).data;
 		var destData = new Int16Array(width * height);
 		for (var y = 0, i = 0; y < height; y++) {
@@ -285,6 +286,7 @@
 				for (var x = 0; x < width; x++, i++) {
 					var c = destData[i];
 					destData[i] = c < 128 ? 0 : 255;
+					// destData[i] = c < 32 ? 0 : (c < 96 ? 63 : (c  < 160 ? 127 : (c < 224 ? 191 : 255)));
 					var quantError = c - destData[i];
 					if (quantError === 0) continue;
 					for (var iy = 0; iy < 3; iy++) {
@@ -341,6 +343,7 @@
 			}
 		}
 
+		var mm2px = previewScale.value * 128 / 25.4;
 		var previewWidth = Math.round(settings.width.value * mm2px);
 		var previewHeight = Math.round(settings.height.value * mm2px);
 		var borderX = settings.borderX.value * mm2px;
@@ -351,7 +354,7 @@
 		viewport.style.height = (previewHeight + borderY * 2) + "px";
 
 		switch (event.target) {
-			case imageGammaInput:
+			case imageGamma:
 			case settings.width:
 			case settings.height:
 			case settings.keepProportions:
@@ -384,8 +387,8 @@
 		ctx.putImageData(imgData, 0, 0);
 
 		imageFile.value = ""
-		imageGammaInput.value = 1;
-		// imageGammaInput.disabled = true;
+		imageGamma.value = 1;
+		// imageGamma.disabled = true;
 		updatePreview({ target: settings.width });
 
 		viewport.hidden = false;
@@ -415,8 +418,8 @@
 		ctx.putImageData(imgData, 0, 0);
 
 		imageFile.value = ""
-		imageGammaInput.value = 1;
-		// imageGammaInput.disabled = true;
+		imageGamma.value = 1;
+		// imageGamma.disabled = true;
 		updatePreview({ target: settings.width });
 
 		viewport.hidden = false;
@@ -430,8 +433,8 @@
 		fileName = imageFile.value.split(/(\\|\/)/g).pop().replace(/\.[^/.]+$/, "");
 		sourceImage = new Image();
 		sourceImage.onload = function(event) {
-			imageGammaInput.value = 1;
-			// imageGammaInput.disabled = false;
+			imageGamma.value = 1;
+			// imageGamma.disabled = false;
 			updatePreview({ target: settings.width });
 
 			viewport.hidden = false;
@@ -478,7 +481,7 @@
 		var gcode = [];
 		gcode.push("; Created using Image2GCode v1.0 https://github.com/damir3/Image2GCode");
 		gcode.push("; Image Size: " + (width * dx) + "x" + (height * dy) + " mm");
-		gcode.push("; Gamma: " + imageGammaInput.value);
+		gcode.push("; Gamma: " + imageGamma.value);
 		gcode.push("; Mode: " + (settings.halftoneMode.checked ? "halftone" : "greyscale"));
 		gcode.push("; Resolution: " + width + "x" + height + " px, " + dx + "x" + dy + " mm/px");
 		gcode.push("; Laser Speed: " + settings.burnSpeed.value + " mm/sec");

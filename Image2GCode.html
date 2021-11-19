@@ -25,6 +25,14 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>Image to GCode</title>
 	<style>
+		#settings {
+			border: 1px solid #888;
+			width: 400px;
+			padding: 10px;
+			clear:both;
+			line-height:30px;
+		}
+
 		#viewport {
 			position: absolute;
 			left: 440px;
@@ -36,6 +44,39 @@
 			top: 50%;
 			left: 50%;
 			transform: translate(-50%, -50%);
+		}
+
+		#imageFile {
+			width: 270px;
+		}
+
+		#gradientButton {
+			float: right;
+		}
+
+		#profilesDiv {
+			margin-bottom: 10px;
+		}
+
+		#profiles {
+			width: 330px;
+			height:30px;
+			float: left;
+		}
+
+		.toolButton {
+			float: right;
+			width: 30px;
+			height:30px;
+			margin-left: 4px;
+		}
+
+		#generateButton {
+			width: 200px;
+			height: 40px;
+			position: relative;
+			left: 50%;
+			transform: translateX(-50%);
 		}
 
 		label {
@@ -61,54 +102,34 @@
 			margin: 0;
 			padding: 0;
 		}
-
-		select {
-			width: 104px;
-			height: 20px;
-			float: right;
-			margin: 0;
-			padding: 0;
-		}
-
-		.toolButton {
-			float: right;
-			width: 30px;
-			height:30px;
-			margin-left: 4px;
-		}
 	</style>
 </head>
 
 <body lang="en-US">
-	<!-- <h1>Image to GCode</h1> -->
-	<div style="border: 1px solid #888; width: 400px; padding: 10px; clear:both; line-height:30px;">
-		<!-- <form> -->
+	<div id="settings">
+
 		<label>Image:</label>
-		<button style="float: right;" onclick="generateGradientImage()">Gradient</button>
-		<input style="width: 270px;" id="imageFile" type="file" accept="image/*" onchange="loadImage()" />
+		<button id="gradientButton" onclick="generateGradientImage()">Gradient</button>
+		<input id="imageFile" type="file" accept="image/*" onchange="loadImage()" />
 		<br/>
 		<label>Gamma: </label><input id="imageGamma" type="number" min="0.05" max="10" value="1" step="0.05" onchange="updatePreviewImage()""><br/>
 		<label>Preview Scale: </label><input id="previewScale" type="number" min="0.25" max="10" value="1" step="0.25" onchange="updatePreview(event)""><br/>
 		<br/>
 
-		<div style="margin-bottom: 10px;">
-		<label>Profile: </label>
-		<button id="deleteProfile" title="Delete this profile" onclick="onDeleteProfile()" class="toolButton">&#10005;</button>
-		<button id="saveProfile" title="Save current settings" onclick="onSaveProfile()" class="toolButton">&#128190;</button>
-		<select id="profiles" style="width: 250px; height:30px;" onchange="onChangeProfile()"/>
-		</select>
+		<div id="profilesDiv">
+			<button id="deleteProfile" title="Delete this profile" onclick="onDeleteProfile()" class="toolButton">&#10005;</button>
+			<button id="saveProfile" title="Save current settings" onclick="onSaveProfile()" class="toolButton">&#128190;</button>
+			<select id="profiles" title="Select profile" onchange="onChangeProfile()" />
+			</select>
 		</div><br/>
 
 		<label>Halftone Mode: </label><input id="halftoneMode" type="checkbox" checked onchange="updatePreviewImage()"><br/>
-		<label>Laser ON / OFF Command:</label>
-		<select id="laserOnOffCmd"">
-			<option value="0">M3 / M5</option>
-			<option value="1">M106 / M107</option>
-		</select><br/>
-		<label>Burn Min Power [0 - 255]: </label><input id="minPower" type="number" min="0" max="255" value="10"><br/>
-		<label>Burn Max Power [0 - 255]: </label><input id="maxPower" type="number" min="0" max="255" value="255"><br/>
-		<label>Burn Speed (mm/min): </label><input id="burnSpeed" type="number" min="1" value="1000"><br/>
-		<label>Travel Speed (mm/min): </label><input id="travelSpeed" type="number" min="1" value="8000"><br/>
+		<label>Laser ON Command: </label><input id="onCmd" type="text" value="M3 I S"/><br/>
+		<label>Laser OFF Command: </label><input id="offCmd" type="text" value="M5"/><br/>
+		<label>Burn Min Power [0 - 255]: </label><input id="minPower" type="number" min="0" max="255" value="10"/><br/>
+		<label>Burn Max Power [0 - 255]: </label><input id="maxPower" type="number" min="0" max="255" value="255"/><br/>
+		<label>Burn Speed (mm/min): </label><input id="burnSpeed" type="number" min="1" value="1000"/><br/>
+		<label>Travel Speed (mm/min): </label><input id="travelSpeed" type="number" min="1" value="6000"><br/>
 		<label>Image Width (mm): </label><input id="width" type="number" value="100" min="1" max="10000" onchange="updatePreview(event)"><br/>
 		<label>Image Height (mm): </label><input id="height" type="number" value="100" min="1" max="10000" onchange="updatePreview(event)"><br/>
 		<label>Keep proportions: </label><input id="keepProportions" type="checkbox" checked onchange="updatePreview(event)"><br/>
@@ -130,12 +151,10 @@
 			<label>Cutting Passes: </label><input id="numCutPasses" type="number" min="1" value="1" step="1"><br/>
 		</div>
 		<br/>
-		<button id="generateButton" onclick="generateGCode()" disabled style="width: 200px; height: 40px; position: relative; left: 50%; transform: translateX(-50%);">Generate G-Code</button><br/>
+		<button id="generateButton" onclick="generateGCode()" disabled>Generate G-Code</button><br/>
 	</div>
-	<div>
-		<div id="viewport" hidden="true">
-			<canvas id="previewCanvas"/>
-		</div>
+	<div id="viewport" hidden="true">
+		<canvas id="previewCanvas"/>
 	</div>
 </body>
 
@@ -151,7 +170,7 @@
 	var generateButton = document.getElementById("generateButton");
 	var profiles = {};
 	var settings = {};
-	["halftoneMode", "laserOnOffCmd", "minPower", "maxPower", "burnSpeed", "travelSpeed",
+	["halftoneMode", "onCmd", "offCmd", "minPower", "maxPower", "burnSpeed", "travelSpeed",
 		"width", "height", "keepProportions", "xRes", "yRes", "overscanDist", "borderX", "borderY", "zPos",
 		"zigZagPath", "reverseMovementOffset", "cutImage", "cutPower", "cutSpeed", "numCutPasses"].forEach(function(name) {
 		settings[name] = document.getElementById(name);
@@ -183,17 +202,32 @@
 		}
 	}
 
+	function settingsToProfile() {
+		var json = {};
+		for (var propName in settings) {
+			var element = settings[propName];
+			json[element.id] = element.type === "checkbox" ? element.checked : element.value;
+		}
+		return json;
+	}
+
 	function loadProfiles() {
 		var profilesData = localStorage.getItem("profiles");
-		if (!profilesData) return;
+		if (profilesData) {
+			profiles = JSON.parse(profilesData);
+		}
 
-		profiles = JSON.parse(profilesData);
+		if (Object.getPrototypeOf(profiles) !== Object.prototype || Object.keys(profiles).length === 0) {
+			profiles = { Default: settingsToProfile() };
+			saveProfiles();
+		}
+
 		for (var profileName in profiles) {
 			var option = document.createElement("option");
 			option.value = option.text = profileName;
 			profilesSelect.add(option);
 		}
-		profilesSelect.value = localStorage.getItem("activeProfile");
+		profilesSelect.value = localStorage.getItem("activeProfile") || "Default";
 		onChangeProfile();
 	}
 
@@ -216,12 +250,7 @@
 				profilesSelect.add(option);
 			}
 			profilesSelect.value = profileName;
-			var json = {};
-			for (var propName in settings) {
-				var element = settings[propName];
-				json[element.id] = element.type === "checkbox" ? element.checked : element.value;
-			}
-			profiles[profileName] = json;
+			profiles[profileName] = settingsToProfile();
 			saveProfiles();
 		}
 		console.log(profileName);
@@ -454,13 +483,6 @@
 		var height = image.height;
 		var data = image.data;
 
-		var onCmd = "M3 I S";
-		var offCmd = "M5";
-		if (parseInt(settings.laserOnOffCmd.value) > 0) {
-			onCmd = "M106 S";
-			offCmd = "M107";
-		}
-
 		var dx = parseFloat(settings.xRes.value);
 		var dy = parseFloat(settings.yRes.value);
 		var ad = Math.floor(settings.overscanDist.value / dx);
@@ -469,6 +491,8 @@
 		var minPower = parseFloat(settings.minPower.value);
 		var maxPower = parseFloat(settings.maxPower.value);
 		var cutPower = parseFloat(settings.cutPower.value);
+		var onCmd = settings.onCmd.value;
+		var offCmd = settings.offCmd.value;
 		var travelSpeedCmd = " F" + settings.travelSpeed.value;
 		var laserSpeedCmd = " F" + settings.burnSpeed.value;
 		var cuttingSpeedCmd = " F" + settings.cutSpeed.value;

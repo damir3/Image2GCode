@@ -21,8 +21,7 @@
 <html>
 
 <head>
-	<!-- <meta charset="utf-8"> -->
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta charset="utf-8">
 	<title>Image to GCode</title>
 	<style>
 		#settings {
@@ -100,6 +99,7 @@
 			height: 20px;
 			float: right;
 			margin: 0;
+			margin-left: 5px;
 			padding: 0;
 		}
 	</style>
@@ -110,45 +110,50 @@
 
 		<label>Image:</label>
 		<button id="gradientButton" onclick="generateGradientImage()">Gradient</button>
-		<input id="imageFile" type="file" accept="image/*" onchange="loadImage()" />
+		<input id="imageFile" type="file" accept="image/*" onchange="loadImage()"/>
 		<br/>
-		<label>Gamma: </label><input id="imageGamma" type="number" min="0.05" max="10" value="1" step="0.05" onchange="updatePreviewImage()""><br/>
-		<label>Preview Scale: </label><input id="previewScale" type="number" min="0.25" max="10" value="1" step="0.25" onchange="updatePreview(event)""><br/>
+		<label>Gamma:</label><input id="gamma" type="number" min="0.05" max="10" value="1" step="0.05" onchange="updatePreviewImage()"/><br/>
+		<label>Horizontal Cropping (%):</label>
+		<input id="cropRight" type="number" min="0" max="100" value="100" step="1" onchange="updatePreview(event)"/>
+		<input id="cropLeft" type="number" min="0" max="100" value="0" step="1" onchange="updatePreview(event)"/><br/>
+		<label>Vertical Cropping (%):</label>
+		<input id="cropBottom" type="number" min="0" max="100" value="100" step="1" onchange="updatePreview(event)"/>
+		<input id="cropTop" type="number" min="0" max="100" value="0" step="1" onchange="updatePreview(event)"/><br/>
+		<label>Preview Scale:</label><input id="previewScale" type="number" min="0.25" max="10" value="1" step="0.25" onchange="updatePreview(event)"/><br/>
 		<br/>
 
 		<div id="profilesDiv">
 			<button id="deleteProfile" title="Delete this profile" onclick="onDeleteProfile()" class="toolButton">&#10005;</button>
 			<button id="saveProfile" title="Save current settings" onclick="onSaveProfile()" class="toolButton">&#128190;</button>
-			<select id="profiles" title="Select profile" onchange="onChangeProfile()" />
-			</select>
+			<select id="profiles" title="Select profile" onchange="onChangeProfile()"></select>
 		</div><br/>
 
-		<label>Halftone Mode: </label><input id="halftoneMode" type="checkbox" checked onchange="updatePreviewImage()"><br/>
-		<label>Laser ON Command: </label><input id="onCmd" type="text" value="M3 I S"/><br/>
-		<label>Laser OFF Command: </label><input id="offCmd" type="text" value="M5"/><br/>
-		<label>Burn Min Power [0 - 255]: </label><input id="minPower" type="number" min="0" max="255" value="10"/><br/>
-		<label>Burn Max Power [0 - 255]: </label><input id="maxPower" type="number" min="0" max="255" value="255"/><br/>
-		<label>Burn Speed (mm/min): </label><input id="burnSpeed" type="number" min="1" value="1000"/><br/>
-		<label>Travel Speed (mm/min): </label><input id="travelSpeed" type="number" min="1" value="6000"><br/>
-		<label>Image Width (mm): </label><input id="width" type="number" value="100" min="1" max="10000" onchange="updatePreview(event)"><br/>
-		<label>Image Height (mm): </label><input id="height" type="number" value="100" min="1" max="10000" onchange="updatePreview(event)"><br/>
-		<label>Keep proportions: </label><input id="keepProportions" type="checkbox" checked onchange="updatePreview(event)"><br/>
-		<label>Horizontal Resolution (mm/pixel): </label><input id="xRes" type="number" min="0.01" max="10" value="0.1" step="0.01" onchange="updatePreview(event)"><br/>
-		<label>Vertical Resolution (mm/pixel): </label><input id="yRes" type="number" min="0.01" max="10" value="0.1" step="0.01" onchange="updatePreview(event)"><br/>
-		<label>Overscan / Acceleration Distance (mm): </label><input id="overscanDist" type="number" min="0" max="100" value="3" step="0.1"><br/>
-		<label>Border X (mm): </label><input id="borderX" type="number" value="5" min="0" onchange="updatePreview(event)"><br/>
-		<label>Border Y (mm): </label><input id="borderY" type="number" value="5" min="0" onchange="updatePreview(event)"><br/>
-		<label>Z Position (mm): </label><input id="zPos" type="number" value="0" min="0"><br/>
-		<label>Zig-Zag Path: </label><input id="zigZagPath" type="checkbox" onchange="updateZigZag()"><br/>
+		<label>Halftone Mode:</label><input id="halftoneMode" type="checkbox" checked onchange="updatePreviewImage()"/><br/>
+		<label>Laser ON Command:</label><input id="onCmd" type="text" value="M3 I S"/><br/>
+		<label>Laser OFF Command:</label><input id="offCmd" type="text" value="M5"/><br/>
+		<label>Burn Min Power [0 - 255]:</label><input id="minPower" type="number" min="0" max="255" value="10"/><br/>
+		<label>Burn Max Power [0 - 255]:</label><input id="maxPower" type="number" min="0" max="255" value="255"/><br/>
+		<label>Burn Speed (mm/min):</label><input id="burnSpeed" type="number" min="1" value="1000"/><br/>
+		<label>Travel Speed (mm/min):</label><input id="travelSpeed" type="number" min="1" value="6000"/><br/>
+		<label>Image Width (mm):</label><input id="width" type="number" value="100" min="1" max="10000" onchange="updatePreview(event)"/><br/>
+		<label>Image Height (mm):</label><input id="height" type="number" value="100" min="1" max="10000" onchange="updatePreview(event)"/><br/>
+		<label>Keep proportions:</label><input id="keepProportions" type="checkbox" checked onchange="updatePreview(event)"/><br/>
+		<label>Horizontal Resolution (mm/pixel):</label><input id="xRes" type="number" min="0.01" max="10" value="0.1" step="0.01" onchange="updatePreview(event)"/><br/>
+		<label>Vertical Resolution (mm/pixel):</label><input id="yRes" type="number" min="0.01" max="10" value="0.1" step="0.01" onchange="updatePreview(event)"/><br/>
+		<label>Overscan / Acceleration Distance (mm):</label><input id="overscanDist" type="number" min="0" max="100" value="3" step="0.1"/><br/>
+		<label>Border X (mm):</label><input id="borderX" type="number" value="5" min="0" onchange="updatePreview(event)"/><br/>
+		<label>Border Y (mm):</label><input id="borderY" type="number" value="5" min="0" onchange="updatePreview(event)"/><br/>
+		<label>Z Position (mm):</label><input id="zPos" type="number" value="0" min="0"/><br/>
+		<label>Zig-Zag Path:</label><input id="zigZagPath" type="checkbox" onchange="updateZigZag()"/><br/>
 		<div id="zigZagSettings" hidden>
-			<label>Reverse Movement Offset (mm): </label><input id="reverseMovementOffset" type="number" min="0" max="1" value="0.25" step="0.01"><br/>
+			<label>Reverse Movement Offset (mm):</label><input id="reverseMovementOffset" type="number" min="0" max="1" value="0.25" step="0.01"/><br/>
 			<button onclick="calibrateReverseMovement()">Calibrate Reverse Movement Offset</button><br/>
 		</div>
-		<label>Cut Image: </label><input id="cutImage" type="checkbox" onchange="updateCut()"><br/>
+		<label>Cut Image:</label><input id="cutImage" type="checkbox" onchange="updateCut()"/><br/>
 		<div id="cuttingSettings" hidden>
-			<label>Cutting Power [0 - 255]: </label><input id="cutPower" type="number" min="0" max="255" value="255"><br/>
-			<label>Cutting Speed (mm/min): </label><input id="cutSpeed" type="number" min="1" value="200"><br/>
-			<label>Cutting Passes: </label><input id="numCutPasses" type="number" min="1" value="1" step="1"><br/>
+			<label>Cutting Power [0 - 255]:</label><input id="cutPower" type="number" min="0" max="255" value="255"/><br/>
+			<label>Cutting Speed (mm/min):</label><input id="cutSpeed" type="number" min="1" value="200"/><br/>
+			<label>Cutting Passes:</label><input id="numCutPasses" type="number" min="1" value="1" step="1"/><br/>
 		</div>
 		<br/>
 		<button id="generateButton" onclick="generateGCode()" disabled>Generate G-Code</button><br/>
@@ -160,16 +165,16 @@
 
 <script type="text/javascript">
 	var fileName;
-	var viewport = document.getElementById("viewport");
 	var sourceImage = new Image();
-	var previewCanvas = document.getElementById("previewCanvas");
-	var imageFile = document.getElementById("imageFile");
-	var imageGamma = document.getElementById("imageGamma");
-	var previewScale = document.getElementById("previewScale");
-	var profilesSelect = document.getElementById("profiles");
-	var generateButton = document.getElementById("generateButton");
+	var elements = {};
 	var profiles = {};
 	var settings = {};
+
+	["viewport", "previewCanvas", "imageFile", "profiles", "generateButton",
+		"gamma", "cropLeft", "cropRight", "cropTop", "cropBottom", "previewScale"].forEach(function(name) {
+		elements[name] = document.getElementById(name);
+	});
+
 	["halftoneMode", "onCmd", "offCmd", "minPower", "maxPower", "burnSpeed", "travelSpeed",
 		"width", "height", "keepProportions", "xRes", "yRes", "overscanDist", "borderX", "borderY", "zPos",
 		"zigZagPath", "reverseMovementOffset", "cutImage", "cutPower", "cutSpeed", "numCutPasses"].forEach(function(name) {
@@ -178,7 +183,7 @@
 
 	function updateCut() {
 		document.getElementById("cuttingSettings").hidden = !settings.cutImage.checked;
-		viewport.style.border = settings.cutImage.checked ? "1px solid red" : "1px dashed #ccc";
+		elements.viewport.style.border = settings.cutImage.checked ? "1px solid red" : "1px dashed #ccc";
 	}
 
 	function updateZigZag() {
@@ -186,9 +191,9 @@
 	}
 
 	function onChangeProfile() {
-		var profile = profiles[profilesSelect.value];
+		var profile = profiles[elements.profiles.value];
 		if (profile !== undefined) {
-			localStorage.setItem("activeProfile", profilesSelect.value);
+			localStorage.setItem("activeProfile", elements.profiles.value);
 			for (var propName in settings) {
 				var value = profile[propName];
 				if (value !== undefined) {
@@ -225,9 +230,9 @@
 		for (var profileName in profiles) {
 			var option = document.createElement("option");
 			option.value = option.text = profileName;
-			profilesSelect.add(option);
+			elements.profiles.add(option);
 		}
-		profilesSelect.value = localStorage.getItem("activeProfile") || "Default";
+		elements.profiles.value = localStorage.getItem("activeProfile") || "Default";
 		onChangeProfile();
 	}
 
@@ -237,19 +242,19 @@
 
 	function saveProfiles() {
 		localStorage.setItem("profiles", JSON.stringify(profiles));
-		localStorage.setItem("activeProfile", profilesSelect.value);
+		localStorage.setItem("activeProfile", elements.profiles.value);
 	}
 
 	function onSaveProfile() {
-		var profileName = prompt("Save Profile as", profilesSelect.value || "Default");
+		var profileName = prompt("Save Profile as", elements.profiles.value || "Default");
 		if (profileName) {
-			var option = Array.from(profilesSelect.options).find(function(option) { return option.value === profileName; });
+			var option = Array.from(elements.profiles.options).find(function(option) { return option.value === profileName; });
 			if (!option) {
 				option = document.createElement("option");
 				option.value = option.text = profileName;
-				profilesSelect.add(option);
+				elements.profiles.add(option);
 			}
-			profilesSelect.value = profileName;
+			elements.profiles.value = profileName;
 			profiles[profileName] = settingsToProfile();
 			saveProfiles();
 		}
@@ -257,11 +262,11 @@
 	}
 
 	function onDeleteProfile() {
-		var option = Array.from(profilesSelect.options).find(function(option) { return option.value === profilesSelect.value; });
+		var option = Array.from(elements.profiles.options).find(function(option) { return option.value === elements.profiles.value; });
 		if (option && confirm("Delete " + option.text + " Profile?")) {
 			delete profiles[option.value];
-			profilesSelect.remove(option);
-			profilesSelect.value = null;
+			elements.profiles.remove(option);
+			elements.profiles.value = null;
 			saveProfiles();
 		}
 	}
@@ -279,25 +284,40 @@
 		return Math.round(x * 100) / 100;
 	}
 
+	function clamp(v, a, b) {
+		return Math.min(Math.max(v, a), b);
+	}
+
+	function getCropRect(image) {
+		var left = clamp(Math.round(image.width * elements.cropLeft.value * 0.01), 0, image.width - 1);
+		var right = clamp(Math.round(image.width * elements.cropRight.value * 0.01), left + 1, image.width);
+		var top = clamp(Math.round(image.height * elements.cropTop.value * 0.01), 0, image.height - 1);
+		var bottom = clamp(Math.round(image.height * elements.cropBottom.value * 0.01), top + 1, image.height);
+		return new Float32Array([left, top, right - left, bottom - top]);
+	}
+
 	function createEngravingImage(disableHalftone) {
 		var width = Math.round(settings.width.value / settings.xRes.value);
 		var height = Math.round(settings.height.value / settings.yRes.value);
 
 		var image = sourceImage;
 		var canvas, ctx;
+		var rect = getCropRect(image);
 
 		do {// scale image
 			canvas = document.createElement("canvas");
-			canvas.width = Math.max(image.width >> 1, width);
-			canvas.height = Math.max(image.height >> 1, height);
+			canvas.width = Math.max(rect[2] >> 1, width);
+			canvas.height = Math.max(rect[3] >> 1, height);
 			ctx = canvas.getContext("2d");
-			ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-			console.log(image.width, image.height, "->", canvas.width, canvas.height);
+			ctx.drawImage(image, rect[0], rect[1], rect[2], rect[3], 0, 0, canvas.width, canvas.height);
 			image = canvas;
+			rect[0] = rect[1] = 0;
+			rect[2] = image.width;
+			rect[3] = image.height;
 		} while (image.width > width || image.height > height);
 
 		// prepare greyscale data
-		var gamma = parseFloat(imageGamma.value);
+		var gamma = parseFloat(elements.gamma.value);
 		var srcData = ctx.getImageData(0, 0, width, height).data;
 		var destData = new Int16Array(width * height);
 		for (var y = 0, i = 0; y < height; y++) {
@@ -315,7 +335,6 @@
 				for (var x = 0; x < width; x++, i++) {
 					var c = destData[i];
 					destData[i] = c < 128 ? 0 : 255;
-					// destData[i] = c < 32 ? 0 : (c < 96 ? 63 : (c  < 160 ? 127 : (c < 224 ? 191 : 255)));
 					var quantError = c - destData[i];
 					if (quantError === 0) continue;
 					for (var iy = 0; iy < 3; iy++) {
@@ -344,11 +363,11 @@
 		if (!sourceImage.width || !sourceImage.height) return;
 
 		var image = createEngravingImage();
-		var width = previewCanvas.width = image.width;
-		var height = previewCanvas.height = image.height;
+		var width = elements.previewCanvas.width = image.width;
+		var height = elements.previewCanvas.height = image.height;
 
 		// copy image data to canvas
-		var ctx = previewCanvas.getContext("2d");
+		var ctx = elements.previewCanvas.getContext("2d");
 		var imgData = ctx.createImageData(width, height);
 		var src = image.data;
 		var dest = imgData.data;
@@ -363,27 +382,40 @@
 	}
 
 	function updatePreview(event) {
+		var rect = getCropRect(sourceImage);
 		var keepProportions = settings.keepProportions.checked;
 		if (keepProportions && sourceImage.width && sourceImage.height) {
-			if (event.target === settings.width || event.target === settings.keepProportions) {
-				settings.height.value = settings.width.value * sourceImage.height / sourceImage.width;
-			} else if (event.target === settings.height) {
-				settings.width.value = settings.height.value * sourceImage.width / sourceImage.height;
+			switch (event.target) {
+				case settings.width:
+				case settings.keepProportions:
+				case elements.cropTop:
+				case elements.cropBottom:
+					settings.height.value = roundCoord(settings.width.value * rect[3] / rect[2]);
+					break;
+				case elements.cropLeft:
+				case elements.cropRight:
+				case settings.height:
+					settings.width.value = roundCoord(settings.height.value * rect[2] / rect[3]);
+					break;
 			}
 		}
 
-		var mm2px = previewScale.value * 128 / 25.4;
-		var previewWidth = Math.round(settings.width.value * mm2px);
-		var previewHeight = Math.round(settings.height.value * mm2px);
+		var mm2px = elements.previewScale.value * 128 / 25.4;
+		var previewWidth = settings.width.value * mm2px;
+		var previewHeight = settings.height.value * mm2px;
 		var borderX = settings.borderX.value * mm2px;
 		var borderY = settings.borderY.value * mm2px;
-		previewCanvas.style.width = previewWidth + "px";
-		previewCanvas.style.height = previewHeight + "px";
-		viewport.style.width = (previewWidth + borderX * 2) + "px";
-		viewport.style.height = (previewHeight + borderY * 2) + "px";
+		elements.previewCanvas.style.width = previewWidth + "px";
+		elements.previewCanvas.style.height = previewHeight + "px";
+		elements.viewport.style.width = (previewWidth + borderX * 2) + "px";
+		elements.viewport.style.height = (previewHeight + borderY * 2) + "px";
 
 		switch (event.target) {
-			case imageGamma:
+			case elements.gamma:
+			case elements.cropLeft:
+			case elements.cropRight:
+			case elements.cropTop:
+			case elements.cropBottom:
 			case settings.width:
 			case settings.height:
 			case settings.keepProportions:
@@ -392,6 +424,12 @@
 				updatePreviewImage();
 				break;
 		}
+	}
+
+	function resetImageSettings() {
+		elements.gamma.value = 1;
+		elements.cropLeft.value = elements.cropTop.value = 0;
+		elements.cropRight.value = elements.cropBottom.value = 100;
 	}
 
 	function generateGradientImage() {
@@ -415,13 +453,13 @@
 
 		ctx.putImageData(imgData, 0, 0);
 
-		imageFile.value = ""
-		imageGamma.value = 1;
-		// imageGamma.disabled = true;
+		elements.imageFile.value = "";
+		resetImageSettings();
+		// gamma.disabled = true;
 		updatePreview({ target: settings.width });
 
-		viewport.hidden = false;
-		generateButton.disabled = false;
+		elements.viewport.hidden = false;
+		elements.generateButton.disabled = false;
 		fileName = "gradient";
 	}
 
@@ -446,33 +484,33 @@
 
 		ctx.putImageData(imgData, 0, 0);
 
-		imageFile.value = ""
-		imageGamma.value = 1;
-		// imageGamma.disabled = true;
+		elements.imageFile.value = "";
+		resetImageSettings();
+		// gamma.disabled = true;
 		updatePreview({ target: settings.width });
 
-		viewport.hidden = false;
-		generateButton.disabled = false;
+		elements.viewport.hidden = false;
+		elements.generateButton.disabled = false;
 		fileName = "zigzag-calibration";
 
 		generateGCode(true);
 	}
 
 	function loadImage() {
-		fileName = imageFile.value.split(/(\\|\/)/g).pop().replace(/\.[^/.]+$/, "");
+		fileName = elements.imageFile.value.split(/(\\|\/)/g).pop().replace(/\.[^/.]+$/, "");
 		sourceImage = new Image();
 		sourceImage.onload = function(event) {
-			imageGamma.value = 1;
-			// imageGamma.disabled = false;
+			resetImageSettings();
+			// gamma.disabled = false;
 			updatePreview({ target: settings.width });
 
-			viewport.hidden = false;
-			generateButton.disabled = false;
+			elements.viewport.hidden = false;
+			elements.generateButton.disabled = false;
 		};
 
-		viewport.hidden = true;
-		generateButton.disabled = true;
-		sourceImage.src = imageFile.files.length > 0 ? window.URL.createObjectURL(imageFile.files[0]) : "";
+		elements.viewport.hidden = true;
+		elements.generateButton.disabled = true;
+		sourceImage.src = elements.imageFile.files.length > 0 ? window.URL.createObjectURL(elements.imageFile.files[0]) : "";
 	}
 
 	function generateGCode(zigZagCalibration) {
@@ -505,7 +543,7 @@
 		var gcode = [];
 		gcode.push("; Created using Image2GCode v1.0.0 https://github.com/damir3/Image2GCode");
 		gcode.push("; Image Size: " + (width * dx) + "x" + (height * dy) + " mm");
-		gcode.push("; Gamma: " + imageGamma.value);
+		gcode.push("; Gamma: " + elements.gamma.value);
 		gcode.push("; Mode: " + (settings.halftoneMode.checked ? "halftone" : "greyscale"));
 		gcode.push("; Resolution: " + width + "x" + height + " px, " + dx + "x" + dy + " mm/px");
 		gcode.push("; Laser Speed: " + settings.burnSpeed.value + " mm/sec");
